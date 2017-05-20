@@ -36,8 +36,8 @@ def combineTrainData():
         train_y[i]=[train_data[i][68]]
         i+=1
 
-    write_csv(train_data, "/home/sashi/Documents/Spring2017/CS599/project/train-data")
-    write_csv(train_y, "/home/sashi/Documents/Spring2017/CS599/project/test-data")
+    write_csv(train_data, "/home/sashi/Documents/Spring2017/CS599/project/train-x")
+    write_csv(train_y, "/home/sashi/Documents/Spring2017/CS599/project/train-y")
 
 
 combineTrainData()

@@ -11,9 +11,10 @@ from sklearn import linear_model
 #############################################################################
 
 
-train_x = np.genfromtxt('/home/sashi/Documents/Spring2017/CS599/project/train-data.csv',
+# Change File path to where you have your data
+train_x = np.genfromtxt('/home/sashi/Documents/Spring2017/CS599/project/train-x.csv',
                           delimiter=',')
-train_y = np.genfromtxt('/home/sashi/Documents/Spring2017/CS599/project/test-data.csv',
+train_y = np.genfromtxt('/home/sashi/Documents/Spring2017/CS599/project/train-y.csv',
                           delimiter=',')
 
 X_train = train_x[:.9 * train_x.shape[0]]
