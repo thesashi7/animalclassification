@@ -1,3 +1,3 @@
 # animalclassification
 
-Classification of dog and cat species using vocalization
+Classification of dog and cat species vocalization
