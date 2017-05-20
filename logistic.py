@@ -5,8 +5,8 @@ from sklearn.metrics import accuracy_score
 from sklearn import linear_model
 
 #############################################################################
-#    Classification of dog and cat species using vocalization
-#    This is a logistic regression based model
+#    Classification of dog and cat species vocalization using logistic
+#    regression model
 #
 #############################################################################
 
