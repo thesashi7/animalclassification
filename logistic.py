@@ -5,34 +5,26 @@ from sklearn.metrics import accuracy_score
 from sklearn import linear_model
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-
+from preparedata import FeatureLoader
 #############################################################################
 #    Classification of dog and cat species vocalization using logistic
 #    regression model
 #
 #############################################################################
 
+# Load data from CSV file. Edit this to point to the features file
+data, target = FeatureLoader("data/features.csv").loadLibrosaCSV()
 
-# Change File path to where you have your data
-train_x = np.genfromtxt('/home/sashi/Documents/Spring2017/CS599/project/train-x.csv',
-                          delimiter=',')
-train_y = np.genfromtxt('/home/sashi/Documents/Spring2017/CS599/project/train-y.csv',
-                          delimiter=',')
+# Split the data into two parts: training data and testing data
+train_data, test_data, train_target, test_target = train_test_split(
+                 data, (target[:, np.newaxis]), test_size=0.3, random_state=42)
 
-X_train,X_test,y_train,y_test = train_test_split(train_x,(train_y[:, np.newaxis]),
-                                                 test_size=0.33, random_state=42)
-#print X_train.shape
-#print X_test.shape
+print train_target.shape
+print train_data.shape
+
+train_target = np.ravel(train_target)
 
 logistic = linear_model.LogisticRegression()
-logistic.fit(X_train, y_train)
-predict = logistic.predict(X_test)
-print("Loss: "+str(log_loss(y_test,predict)))
-print("Accuracy: "+str(accuracy_score(y_test, predict)))
-
-fig, ax = plt.subplots()
-ax.scatter(y_test, predict)
-ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=4)
-ax.set_xlabel('Measured')
-ax.set_ylabel('Predicted')
-plt.show()
+logistic.fit(train_data, train_target)
+predict = logistic.predict(test_data)
+print("ACC: "+str(logistic.score(test_data,test_target)))
