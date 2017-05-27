@@ -71,7 +71,7 @@ class DenseNeuralNetwork:
         print('Test accuracy:', score[1])
 
     def save(self,name=""):
-        f_name = "model-dnn"
+        f_name = "model/model-dnn"
         name = f_name+"-"+name
         model_json = self.model.to_json()
         with open(name+".json", "w") as json_file:
@@ -82,7 +82,7 @@ class DenseNeuralNetwork:
 
 
     def load(self,name=""):
-        f_name = "model-dnn"
+        f_name = "model/model-dnn"
         name = f_name +"-"+name
         # load json and create model
         json_file = open(name+'.json', 'r')

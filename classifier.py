@@ -44,9 +44,9 @@ class SpeciesAudioClassifier:
         return prediction
 
 
-audio_file="raw-test/dog1.wav"
+audio_file="raw-test/cat1.wav"
 clf = SpeciesAudioClassifier()
-classific = clf.classify(audio_file,"pyAudio")
+classific = clf.classify(audio_file,"librosa")
 print classific
 
 
