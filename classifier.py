@@ -43,10 +43,14 @@ class SpeciesAudioClassifier:
         prediction = prediction.argmax(1)
         return prediction
 
-
+#
+# Labels for cat and dog
+cat = 1
+dog  = 0
+label= {cat:"Cat",dog:"Dog"}
 audio_file="raw-test/cat1.wav"
 clf = SpeciesAudioClassifier()
 classific = clf.classify(audio_file,"librosa")
-print classific
+print "\nYou are a "+label[classific[0]]
 
 
