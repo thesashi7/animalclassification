@@ -13,7 +13,8 @@ from preparedata import FeatureLoader
 #############################################################################
 
 # Load data from CSV file. Edit this to point to the features file
-data, target = FeatureLoader("data/features.csv").loadLibrosaCSV()
+#data, target = FeatureLoader("data/features.csv").loadLibrosaCSV()
+data, target = FeatureLoader().loadFeatures(["data/train-x.csv","data/train-y.csv"])
 
 # Split the data into two parts: training data and testing data
 train_data, test_data, train_target, test_target = train_test_split(
@@ -21,8 +22,10 @@ train_data, test_data, train_target, test_target = train_test_split(
 
 print train_target.shape
 print train_data.shape
+print test_data.shape
 
-train_target = np.ravel(train_target)
+#train_target = np.ravel(train_target)
+print train_target.shape
 
 logistic = linear_model.LogisticRegression()
 logistic.fit(train_data, train_target)

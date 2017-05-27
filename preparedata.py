@@ -1,9 +1,20 @@
 import csv
 import numpy as np
 
+#
+# Labels for cat and dog
+cat = 1
+dog  = 0
+
+##############################################################################
+# FeatureLoader class to load csv audio features
+#   Loads audio features for species classification extracted from mainly
+#        two different extractors; PyAudio and Librosa
+#
+##############################################################################
 class FeatureLoader:
 
-    def __init__(self,newFilepath):
+    def __init__(self,newFilepath=[]):
         self.filepath = newFilepath
 
 
@@ -23,9 +34,9 @@ class FeatureLoader:
                 continue
             data.append(row[:len(row) - 1])
             if (row[len(row) - 1] == 'cat'):
-                target.append(1)
+                target.append(cat)
             else:
-                target.append(0)
+                target.append(dog)
                 # target.append(row[len(row) - 1])
 
         return np.asarray(data, dtype=np.float64), np.asarray(target,
@@ -39,10 +50,37 @@ class FeatureLoader:
     def loadPyCSV(self):
         return np.genfromtxt(self.filepath, delimiter=',')
 
+    ###################################################################################
+    #@files : Two files containing audio features for classification
+    #         Ideally one file is for only features and the other is for only label
+    #
+    def loadFeatures(self, files=[]):
+        data = []
+        target = []
+        if(len(files)==1):
+            self.filepath = files[0]
+            data, target = self.loadLibrosaCSV()
+        elif(len(files)==2):
+            self.filepath = files[0]
+            data = self.loadPyCSV()
+            self.filepath = files[1]
+            target = self.loadPyCSV()
+        return data,target
 
+
+#######################################################################################
+#
+# FeatureWriter class to write features to a CSV file
+#   Especially supports combining features of two different classes like cat,dog
+#
+#       Like:   Input  = cat.csv, dog.csv
+#               Output = train-x.csv,train-y.csv
+#   In addition provides the option of creating different training and test dat for input features
+#   See writeTrainAndTestFromTwoPy(...) for more details
+#
 class FeatureWriter:
 
-    def __init__(self, newFeatures):
+    def __init__(self, newFeatures=[]):
         self.features = newFeatures
 
     ################################################################################
@@ -54,13 +92,14 @@ class FeatureWriter:
             # print(type(features[0]))
             if (isinstance(self.features[0], np.ndarray)):
                 for fv in self.features:
+                    print fv
                     writer.writerow(fv)
             else:  # only one feature vector
                 writer.writerow(self.features)
 
     #################################################################################
     # This is to combine training data of cats and dogs audio features extracted
-    #       using PyAudioAnalysis
+    #       using PyAudioAnalysis or cat,dog features without label
     #
     # @field1 : cat audio feature csv file
     # @field1 : dog audio feature csv file
@@ -80,9 +119,9 @@ class FeatureWriter:
         train_y = np.empty([train_data.shape[0],1])
         i=0
         while i < train_data.shape[0]:
-            train_y[i]=[train_data[i][68]]
+            train_y[i]=[train_data[i][train_data.shape[1]-1]]
             i+=1
-        train_data = np.delete(train_data, np.s_[68:69], axis=1)
+        train_data = np.delete(train_data, np.s_[train_data.shape[1]-1:train_data.shape[1]], axis=1)
         print train_data.shape
         self.features = train_data
         self.write_csv( "data/train-x")
@@ -92,7 +131,10 @@ class FeatureWriter:
     #################################################################################
     # This is to combine training data of cats and dogs audio features extracted
     #       using PyAudioAnalysis
-    # In addition creates separate training and testing data and target csv files
+    # In addition creates separate training and testing csv files
+    #
+    #   Example:   Input  = cat.csv, dog.csv
+    #               Output = train-x.csv, train-y.csv, test-x.csv, test-y.csv
     #
     # @field1 : cat audio feature csv file
     # @field1 : dog audio feature csv file
