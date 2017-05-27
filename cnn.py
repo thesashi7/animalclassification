@@ -97,7 +97,9 @@ class ConvolutionNeuralNetwork:
         print('Test loss:', score[0])
         print('Test accuracy:', score[1])
 
-    def save(self, name="model-cnn"):
+    def save(self, name=""):
+        f_name = "model/model-cnn"
+        name = f_name + "-" + name
         model_json = self.model.to_json()
         with open(name + ".json", "w") as json_file:
             json_file.write(model_json)
@@ -105,14 +107,17 @@ class ConvolutionNeuralNetwork:
         self.model.save_weights(name + ".h5")
         print("Saved model to disk")
 
-    def load(self,name="model-cnn"):
+    def load(self,name=""):
         # load json and create model
-        json_file = open(name+'.json', 'r')
+        f_name = "model/model-cnn"
+        name = f_name + "-" + name
+        # load json and create model
+        json_file = open(name + '.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         # load weights into new model
-        loaded_model.load_weights(name+".h5")
+        loaded_model.load_weights(name + ".h5")
         print("Loaded model from disk")
 
         # evaluate loaded model on test data
