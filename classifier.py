@@ -4,7 +4,7 @@ from fextractor import LibrosaExtractor
 from fextractor import PyExtractor
 from fextractor import FeatureExtractorManager
 import numpy as np
-
+import sys
 
 #####################################################################
 # Classifier to classify Species base on Vocalizations
@@ -37,20 +37,28 @@ class SpeciesAudioClassifier:
 
         features = extractor.extractFromFile(feature_extractor,raw_audio,onlyMFCC)
 
-        print features
+        #print features
 
         prediction = self.classifier.predict(features)
         prediction = prediction.argmax(1)
         return prediction
 
+
+###################################################################
+#                Main
 #
-# Labels for cat and dog
-cat = 1
-dog  = 0
-label= {cat:"Cat",dog:"Dog"}
-audio_file="raw-test/cat1.wav"
-clf = SpeciesAudioClassifier()
-classific = clf.classify(audio_file,"librosa")
-print "\nYou are a "+label[classific[0]]
+def main():
+
+    # Labels for cat and dog
+    cat = 1
+    dog = 0
+    label = {cat: "Cat", dog: "Dog"}
+    audio_file = "raw-test/cat1.wav"
+    if(len(sys.argv)>1):
+        audio_file= sys.argv[1]
+    clf = SpeciesAudioClassifier()
+    classific = clf.classify(audio_file,"librosa")
+    print "\nYou are a "+label[classific[0]]
 
 
+if  __name__ =='__main__':main()
