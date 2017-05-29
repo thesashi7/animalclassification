@@ -32,6 +32,7 @@ class FeatureExtractorManager:
     def extractFromFolder(self,extractor_name, new_folder_path,onlyMFCC=False):
       features = []
       self.extractors[extractor_name].folder_path = new_folder_path
+
       if onlyMFCC==True:
         features = self.extractors[extractor_name].extractMFCCFolder()
       else:
@@ -101,7 +102,8 @@ class LibrosaExtractor(FeatureExtractor):
       for fn in glob.glob(os.path.join(dir_name, file_ext)):
         # label = os.path.basename(os.path.dirname(fn))
         print("Processing %s" % fn)
-        mfccs, chroma, mel, contrast, tonnetz = self.extract_feature(fn)
+        self.file_path = fn
+        mfccs, chroma, mel, contrast, tonnetz = self.extract_feature()
         # mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn, 10)
         for i in range(len(mfccs)):
           ext_features = np.hstack([mfccs[i], chroma[i], mel[i], contrast[i], tonnetz[i]])
@@ -237,8 +239,8 @@ class LibrosaExtractor(FeatureExtractor):
 #    6 			Spectral Entropy
 #    7 			Spectral Flux
 #    8 			Spectral Rolloff
-#    9-21 	MFCCs
-#    22-33 	Chroma Vector
+#    9-21 	    MFCCs
+#    22-33 	    Chroma Vector
 #    34 		Chroma Deviation
 #
 class PyExtractor(FeatureExtractor):
@@ -258,7 +260,8 @@ class PyExtractor(FeatureExtractor):
   #@new_stStep : Short-Term step size (In Seconds)
   #@new_computeBEAT : Boolean Value to compute BEAT of audio (This is for Music Audio)
   #
-  def __init__(self, new_file_path="", new_folder_path="", new_mtWin=10, new_mtStep=1, new_stWin=.02, new_stStep=.01, new_computeBEAT=False):
+  def __init__(self, new_file_path="", new_folder_path="", new_mtWin=10, new_mtStep=1,
+               new_stWin=.02, new_stStep=.01, new_computeBEAT=False):
     self.file_path = new_file_path
     self.folder_path = new_folder_path
     self.mtWin = new_mtWin
@@ -272,12 +275,14 @@ class PyExtractor(FeatureExtractor):
   # Multidimenstional array for more than one wave file
   #
   def extractFolder(self):
-    return dirWavFeatureExtraction(self.file_path, self.mtWin, self.mtStep, self.stWin, self.stStep, self.computeBEAT)[0]
+    return dirWavFeatureExtraction(self.folder_path, self.mtWin, self.mtStep, self.stWin,
+                                   self.stStep, self.computeBEAT)[0]
 
 
   def extractFile(self):
 
-    ft = mtFeatureExtractionToFile(self.file_path, self.mtWin, self.mtStep, self.stWin, self.stStep,"py-feat-temp", True, True, True)
+    ft = mtFeatureExtractionToFile(self.file_path, self.mtWin, self.mtStep, self.stWin,
+                                   self.stStep,"py-feat-temp", True, True, True)
     ft = ft.mean(axis=0)
     print ft.shape
     ft = ft.reshape((1, ft.shape[0]))
@@ -300,7 +305,43 @@ class PyExtractor(FeatureExtractor):
       else: #only one feature vector
         writer.writerow(features)
 
+def extract_py(folder_path, csv_file_name):
+  fW = FeatureWriter()
 
+  fM = FeatureExtractorManager()
+  features = fM.extractFromFolder("pyAudio", folder_path)
+  print folder_path
+  print features
+  fW.features = features
+  fW.write_csv(csv_file_name)
+
+def extract_libros(folder_path, csv_file_name,label):
+  lE = LibrosaExtractor()
+  features,labels, headers = lE.label_audio_files(folder_path,label)
+  lE.write_features(features, labels, "", file_name=csv_file_name)
+
+
+
+###################################################################
+#                Main
+#
+def main():
+  cat_folder_path = "/home/sashi/Documents/Spring2017/CS599/project/cat"
+  dog_folder_path = "/home/sashi/Documents/Spring2017/CS599/project/dog"
+  cat_csv_file=  "high-cat"
+  dog_csv_file = "high-dog"
+  if(len(sys.argv)>2):
+    cat_folder_path = sys.argv[1]
+    dog_folder_path = sys.argv[1]
+
+  #extract_py(cat_folder_path,cat_csv_file)
+  #extract_py(dog_folder_path,dog_csv_file)
+  fW = FeatureWriter()
+  fW.writeTrainAndTestFromTwoPy(cat_csv_file+".csv",dog_csv_file+".csv",name="high")
+
+
+
+if __name__ == '__main__': main()
 ##
 #(class)FeatureExtractor ENDS
 ##

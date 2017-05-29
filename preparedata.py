@@ -1,5 +1,8 @@
 import csv
 import numpy as np
+from keras.utils import np_utils
+import numpy as np
+from sklearn.model_selection import train_test_split
 
 #
 # Labels for cat and dog
@@ -139,7 +142,7 @@ class FeatureWriter:
     # @field1 : cat audio feature csv file
     # @field1 : dog audio feature csv file
     #
-    def writeTrainAndTestFromTwoPy(self,file1,file2):
+    def writeTrainAndTestFromTwoPy(self,file1,file2, name="high"):
         cat_data = np.genfromtxt(file1, delimiter=',')
         dog_data = np.genfromtxt(file2, delimiter=',')
         print cat_data.shape
@@ -148,35 +151,29 @@ class FeatureWriter:
         dog_label = np.zeros([dog_data.shape[0],1])
         cat_data = np.append(cat_data, cat_label, 1)
         dog_data = np.append(dog_data, dog_label, 1)
-        train_data = np.concatenate((cat_data[:109],dog_data[:203]))
-        test_data = np.concatenate((cat_data[109:],dog_data[203:]))
-        print train_data.shape
-        print test_data.shape
-        #np.random.shuffle(train_data)
-        train_y = np.empty([train_data.shape[0],1])
-        test_y = np.empty([test_data.shape[0],1])
-        i=0
-        while i < train_data.shape[0]:
-            train_y[i]=[train_data[i][68]]
-            i+=1
-        i=0
-        while i < test_data.shape[0]:
-            test_y[i]=[test_data[i][68]]
-            i+=1
-        train_data = np.delete(train_data, np.s_[68:69], axis=1)
-        test_data = np.delete(test_data, np.s_[68:69], axis=1)
-        print train_data.shape
-        print test_data.shape
-        print test_y.shape
-        print train_y.shape
+        data = np.concatenate((cat_data, dog_data))
+        np.random.shuffle(data)
+        target = np.empty([data.shape[0], 1])
+        i = 0
+        while i < data.shape[0]:
+            target[i] = data[i][data.shape[1] - 1]
+            i += 1
+        data = np.delete(data, np.s_[data.shape[1] - 1: data.shape[1]], axis=1)
+        # Split the data into two parts: training data and testing data
+        train_data, test_data, train_target, test_target = train_test_split(
+            data, (target[:, np.newaxis]), test_size=0.2, random_state=42)
+        test_target = test_target.reshape((test_target.shape[0],1))
+        train_target = train_target.reshape((train_target.shape[0], 1))
+
         self.features = train_data
-        self.write_csv("data/train-x")
-        self.features = train_y
-        self.write_csv("data/train-y")
+        self.write_csv("data/"+name+"-train-x")
+        self.features = train_target
+        self.write_csv("data/"+name+"-train-y")
         self.features = test_data
-        self.write_csv("data/test-x")
-        self.features = test_y
-        self.write_csv("data/test-y")
+        self.write_csv("data/"+name+"-test-x")
+        self.features = test_target
+        self.write_csv("data/"+name+"-test-y")
+
 
 #combineTrainData()
 #createTrainAndTestData()
